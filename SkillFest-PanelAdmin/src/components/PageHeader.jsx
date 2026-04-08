@@ -1,0 +1,12 @@
+function PageHeader({ title, description }) {
+  return (
+    <div className="page-header">
+      <div>
+        <h2>{title}</h2>
+        {description ? <p>{description}</p> : null}
+      </div>
+    </div>
+  );
+}
+
+export default PageHeader;

@@ -1,0 +1,173 @@
+import { useEffect, useMemo, useState } from "react";
+import PageHeader from "../../components/PageHeader";
+import { aprobarEquipo, cambiarEstadoEquipo, getEquipos } from "../../api/equipos";
+
+const estadosEquipo = ["PENDIENTE", "APROBADO", "RECHAZADO", "INACTIVO", "ELIMINADO"];
+
+function EquiposPage() {
+  const [equipos, setEquipos] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [estadoFiltro, setEstadoFiltro] = useState("");
+  const [organizadorId, setOrganizadorId] = useState("1");
+
+  const cargarEquipos = async () => {
+    try {
+      setLoading(true);
+      setError("");
+      const response = await getEquipos();
+      setEquipos(response.data || []);
+    } catch (err) {
+      setError(
+        err?.response?.data?.detalle ||
+          err?.message ||
+          "No se pudo cargar equipos"
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    cargarEquipos();
+  }, []);
+
+  const equiposFiltrados = useMemo(() => {
+    if (!estadoFiltro) return equipos;
+    return equipos.filter((e) => e.estado === estadoFiltro);
+  }, [equipos, estadoFiltro]);
+
+  const handleCambiarEstado = async (equipoId, estado) => {
+    try {
+      await cambiarEstadoEquipo(equipoId, estado);
+      await cargarEquipos();
+    } catch (err) {
+      alert(
+        err?.response?.data?.detalle ||
+          err?.message ||
+          "No se pudo cambiar el estado"
+      );
+    }
+  };
+
+  const handleAprobar = async (equipoId) => {
+    try {
+      await aprobarEquipo(equipoId, Number(organizadorId));
+      await cargarEquipos();
+    } catch (err) {
+      alert(
+        err?.response?.data?.detalle ||
+          err?.message ||
+          "No se pudo aprobar el equipo"
+      );
+    }
+  };
+
+  return (
+    <div>
+      <PageHeader
+        title="Equipos"
+        description="Revisión y control de equipos."
+      />
+
+      <div className="card mb-16">
+        <div className="toolbar">
+          <div className="toolbar-group">
+            <label>Filtrar por estado</label>
+            <select value={estadoFiltro} onChange={(e) => setEstadoFiltro(e.target.value)}>
+              <option value="">Todos</option>
+              {estadosEquipo.map((estado) => (
+                <option key={estado} value={estado}>
+                  {estado}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="toolbar-group">
+            <label>ID organizador</label>
+            <input
+              type="number"
+              min="1"
+              value={organizadorId}
+              onChange={(e) => setOrganizadorId(e.target.value)}
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="card">
+        {loading ? (
+          <p>Cargando equipos...</p>
+        ) : error ? (
+          <p className="error-text">{error}</p>
+        ) : (
+          <div className="table-wrapper">
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Nombre</th>
+                  <th>Evento</th>
+                  <th>Sede</th>
+                  <th>Líder</th>
+                  <th>Asesor</th>
+                  <th>Estado</th>
+                  <th>Aprobar</th>
+                  <th>Nuevo estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                {equiposFiltrados.length > 0 ? (
+                  equiposFiltrados.map((equipo) => (
+                    <tr key={equipo.id}>
+                      <td>{equipo.id}</td>
+                      <td>{equipo.nombre}</td>
+                      <td>{equipo.eventoNombre || "-"}</td>
+                      <td>{equipo.sedeNombre || "-"}</td>
+                      <td>{equipo.liderNombre || "-"}</td>
+                      <td>{equipo.asesorNombre || "-"}</td>
+                      <td>
+                        <span className="badge neutral">{equipo.estado}</span>
+                      </td>
+                      <td>
+                        <button
+                          className="btn-primary"
+                          onClick={() => handleAprobar(equipo.id)}
+                          disabled={equipo.estado === "APROBADO"}
+                        >
+                          Aprobar
+                        </button>
+                      </td>
+                      <td>
+                        <select
+                          className="inline-select"
+                          value={equipo.estado}
+                          onChange={(e) =>
+                            handleCambiarEstado(equipo.id, e.target.value)
+                          }
+                        >
+                          {estadosEquipo.map((estado) => (
+                            <option key={estado} value={estado}>
+                              {estado}
+                            </option>
+                          ))}
+                        </select>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="9">No hay equipos disponibles.</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export default EquiposPage;
