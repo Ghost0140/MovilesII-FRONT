@@ -3,24 +3,16 @@ import PageHeader from "../../components/PageHeader";
 import {
   aprobarProyecto,
   analizarRadarProyecto,
-  cambiarEstadoProyecto,
   getProyectos,
   rechazarProyecto,
 } from "../../api/proyectos";
 
-const estadosProyecto = [
-  "BORRADOR",
-  "ENVIADO",
-  "APROBADO",
-  "RECHAZADO",
-  "OBSERVADO",
-  "ELIMINADO",
-];
-
 function ProyectosPage() {
   const [proyectos, setProyectos] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [actionLoadingId, setActionLoadingId] = useState(null);
   const [error, setError] = useState("");
+  const [feedback, setFeedback] = useState({ type: "", message: "" });
   const [estadoFiltro, setEstadoFiltro] = useState("");
   const [page, setPage] = useState(0);
   const [meta, setMeta] = useState({
@@ -29,12 +21,22 @@ function ProyectosPage() {
     totalElementos: 0,
   });
 
+  const estadosProyecto = [
+    "BORRADOR",
+    "ENVIADO",
+    "APROBADO",
+    "RECHAZADO",
+    "OBSERVADO",
+    "ELIMINADO",
+  ];
+
   const cargarProyectos = async () => {
     try {
       setLoading(true);
       setError("");
 
       const response = await getProyectos({ page, size: 10 });
+
       setProyectos(response.data || []);
       setMeta({
         paginaActual: response.paginaActual ?? 0,
@@ -61,17 +63,102 @@ function ProyectosPage() {
     return proyectos.filter((p) => p.estado === estadoFiltro);
   }, [proyectos, estadoFiltro]);
 
-  const ejecutarAccion = async (accion) => {
+  const isGithubRepoValido = (url) => {
+    if (!url) return false;
+    return /^https:\/\/github\.com\/[^/]+\/[^/]+(?:\/)?(?:\.git)?$/i.test(
+      url.trim()
+    );
+  };
+
+  const ejecutarAccion = async (proyectoId, accion, successMessage) => {
     try {
+      setActionLoadingId(proyectoId);
+      setFeedback({ type: "", message: "" });
+
       await accion();
       await cargarProyectos();
+
+      setFeedback({
+        type: "success",
+        message: successMessage,
+      });
     } catch (err) {
-      alert(
-        err?.response?.data?.detalle ||
+      setFeedback({
+        type: "error",
+        message:
+          err?.response?.data?.detalle ||
           err?.message ||
-          "No se pudo ejecutar la acción"
+          "No se pudo ejecutar la acción",
+      });
+    } finally {
+      setActionLoadingId(null);
+    }
+  };
+
+  const renderAcciones = (proyecto) => {
+    const repoValido = isGithubRepoValido(proyecto.repositorioUrl);
+    const cargando = actionLoadingId === proyecto.id;
+
+    if (proyecto.estado === "ENVIADO" || proyecto.estado === "OBSERVADO") {
+      return (
+        <div className="actions-inline">
+          <button
+            className="btn-primary"
+            disabled={cargando}
+            onClick={() =>
+              ejecutarAccion(
+                proyecto.id,
+                () => aprobarProyecto(proyecto.id),
+                "Proyecto aprobado correctamente. El radar se ejecutó automáticamente."
+              )
+            }
+          >
+            {cargando ? "Procesando..." : "Aprobar"}
+          </button>
+
+          <button
+            className="btn-danger"
+            disabled={cargando}
+            onClick={() =>
+              ejecutarAccion(
+                proyecto.id,
+                () => rechazarProyecto(proyecto.id),
+                "Proyecto rechazado correctamente."
+              )
+            }
+          >
+            {cargando ? "Procesando..." : "Rechazar"}
+          </button>
+        </div>
       );
     }
+
+    if (proyecto.estado === "APROBADO") {
+      return (
+        <div className="actions-inline">
+          <button
+            className="btn-secondary"
+            disabled={cargando || !repoValido}
+            onClick={() =>
+              ejecutarAccion(
+                proyecto.id,
+                () => analizarRadarProyecto(proyecto.id),
+                "Reanálisis ejecutado correctamente. Revisa Repositorios y Contribuciones."
+              )
+            }
+            title={
+              repoValido
+                ? "Volver a ejecutar el análisis del repositorio"
+                : "El proyecto no tiene un repositorio GitHub válido"
+            }
+          >
+            {cargando ? "Procesando..." : "Reanalizar"}
+          </button>
+        </div>
+      );
+    }
+
+    return <span className="muted-text">Sin acciones</span>;
   };
 
   return (
@@ -85,7 +172,10 @@ function ProyectosPage() {
         <div className="toolbar">
           <div className="toolbar-group">
             <label>Filtrar por estado</label>
-            <select value={estadoFiltro} onChange={(e) => setEstadoFiltro(e.target.value)}>
+            <select
+              value={estadoFiltro}
+              onChange={(e) => setEstadoFiltro(e.target.value)}
+            >
               <option value="">Todos</option>
               {estadosProyecto.map((estado) => (
                 <option key={estado} value={estado}>
@@ -96,6 +186,16 @@ function ProyectosPage() {
           </div>
         </div>
       </div>
+
+      {feedback.message ? (
+        <div
+          className={`card mb-16 ${
+            feedback.type === "success" ? "feedback-success" : "feedback-error"
+          }`}
+        >
+          {feedback.message}
+        </div>
+      ) : null}
 
       <div className="card">
         {loading ? (
@@ -114,10 +214,7 @@ function ProyectosPage() {
                     <th>Equipo/Usuario</th>
                     <th>Repositorio</th>
                     <th>Estado</th>
-                    <th>Aprobar</th>
-                    <th>Rechazar</th>
-                    <th>Radar</th>
-                    <th>Nuevo estado</th>
+                    <th>Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -127,63 +224,25 @@ function ProyectosPage() {
                         <td>{proyecto.id}</td>
                         <td>{proyecto.titulo}</td>
                         <td>{proyecto.eventoNombre || "-"}</td>
-                        <td>{proyecto.equipoNombre || proyecto.usuarioNombre || "-"}</td>
-                        <td className="truncate-cell">{proyecto.repositorioUrl || "-"}</td>
                         <td>
-                          <span className="badge neutral">{proyecto.estado}</span>
+                          {proyecto.equipoNombre ||
+                            proyecto.usuarioNombre ||
+                            "-"}
+                        </td>
+                        <td className="truncate-cell">
+                          {proyecto.repositorioUrl || "-"}
                         </td>
                         <td>
-                          <button
-                            className="btn-primary"
-                            onClick={() =>
-                              ejecutarAccion(() => aprobarProyecto(proyecto.id))
-                            }
-                          >
-                            Aprobar
-                          </button>
+                          <span className="badge neutral">
+                            {proyecto.estado}
+                          </span>
                         </td>
-                        <td>
-                          <button
-                            className="btn-danger"
-                            onClick={() =>
-                              ejecutarAccion(() => rechazarProyecto(proyecto.id))
-                            }
-                          >
-                            Rechazar
-                          </button>
-                        </td>
-                        <td>
-                          <button
-                            className="btn-secondary"
-                            onClick={() =>
-                              ejecutarAccion(() => analizarRadarProyecto(proyecto.id))
-                            }
-                          >
-                            Analizar
-                          </button>
-                        </td>
-                        <td>
-                          <select
-                            className="inline-select"
-                            value={proyecto.estado}
-                            onChange={(e) =>
-                              ejecutarAccion(() =>
-                                cambiarEstadoProyecto(proyecto.id, e.target.value)
-                              )
-                            }
-                          >
-                            {estadosProyecto.map((estado) => (
-                              <option key={estado} value={estado}>
-                                {estado}
-                              </option>
-                            ))}
-                          </select>
-                        </td>
+                        <td>{renderAcciones(proyecto)}</td>
                       </tr>
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="10">No hay proyectos disponibles.</td>
+                      <td colSpan="7">No hay proyectos disponibles.</td>
                     </tr>
                   )}
                 </tbody>
@@ -199,12 +258,15 @@ function ProyectosPage() {
               </button>
 
               <span>
-                Página {meta.paginaActual + 1} de {Math.max(meta.totalPaginas, 1)}
+                Página {meta.paginaActual + 1} de{" "}
+                {Math.max(meta.totalPaginas, 1)}
               </span>
 
               <button
                 onClick={() => setPage((prev) => prev + 1)}
-                disabled={meta.totalPaginas === 0 || page + 1 >= meta.totalPaginas}
+                disabled={
+                  meta.totalPaginas === 0 || page + 1 >= meta.totalPaginas
+                }
               >
                 Siguiente
               </button>

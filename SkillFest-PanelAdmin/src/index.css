@@ -428,3 +428,19 @@ textarea {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.feedback-success {
+  color: #166534;
+  background: #dcfce7;
+  border-color: #86efac;
+}
+
+.feedback-error {
+  color: #991b1b;
+  background: #fee2e2;
+  border-color: #fecaca;
+}
+
+.muted-text {
+  color: #6b7280;
+  font-size: 14px;
+}
