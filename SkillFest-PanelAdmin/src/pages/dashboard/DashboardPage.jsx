@@ -14,7 +14,7 @@ function DashboardPage() {
         setError("");
 
         const response = await getDashboardResumen();
-        setDashboard(response.data);
+        setDashboard(response.data.data);
       } catch (err) {
         setError(
           err?.response?.data?.detalle ||

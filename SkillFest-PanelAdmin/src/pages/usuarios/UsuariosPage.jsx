@@ -113,6 +113,12 @@ function UsuariosPage() {
   };
 
   const handleCambiarActivo = async (usuario) => {
+
+    if (usuario.activo){
+      const confirmar = window.confirm(`¿Estás seguro de que deseas desactivar a ${usuario.nombres}? Perderá el acceso al sistema.`
+    );
+    if (!confirmar) return;
+  }
     try {
       await cambiarActivoUsuario(usuario.id, !usuario.activo);
       await cargarUsuarios();

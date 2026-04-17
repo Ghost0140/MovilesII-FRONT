@@ -1,6 +1,7 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import AdminLayout from "../layouts/AdminLayout";
 
+import Login from "../components/login/Login";
 import DashboardPage from "../pages/dashboard/DashboardPage";
 import UsuariosPage from "../pages/usuarios/UsuariosPage";
 import EventosPage from "../pages/eventos/EventosPage";
@@ -13,26 +14,31 @@ import RepositoriosPage from "../pages/repositorios/RepositoriosPage";
 import RankingAreaPage from "../pages/ranking-area/RankingAreaPage";
 import RankingSedePage from "../pages/ranking-sede/RankingSedePage";
 import ResultadosPage from "../pages/resultados/ResultadosPage";
+import ProtectedRoute from "../components/ProtectedRoute";
 
 function AppRouter() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<AdminLayout />}>
-          <Route index element={<Navigate to="/dashboard" replace />} />
-          <Route path="dashboard" element={<DashboardPage />} />
-          <Route path="usuarios" element={<UsuariosPage />} />
-          <Route path="eventos" element={<EventosPage />} />
-          <Route path="equipos" element={<EquiposPage />} />
-          <Route path="evaluaciones" element={<EvaluacionesPage />} />
-          <Route path="proyectos" element={<ProyectosPage />} />
-          <Route path="portafolio" element={<PortafolioPage />} />
-          <Route path="contribuciones" element={<ContribucionesPage />} />
-          <Route path="repositorios" element={<RepositoriosPage />} />
-          <Route path="ranking-area" element={<RankingAreaPage />} />
-          <Route path="ranking-sede" element={<RankingSedePage />} />
-          <Route path="resultados" element={<ResultadosPage />} />
+        <Route path="/login" element={<Login />} />
+        <Route element={<ProtectedRoute />}>
+          <Route path="/" element={<AdminLayout />}>
+            <Route index element={<Navigate to="/dashboard" replace />} />
+            <Route path="dashboard" element={<DashboardPage />} />
+            <Route path="usuarios" element={<UsuariosPage />} />
+            <Route path="eventos" element={<EventosPage />} />
+            <Route path="equipos" element={<EquiposPage />} />
+            <Route path="evaluaciones" element={<EvaluacionesPage />} />
+            <Route path="proyectos" element={<ProyectosPage />} />
+            <Route path="portafolio" element={<PortafolioPage />} />
+            <Route path="contribuciones" element={<ContribucionesPage />} />
+            <Route path="repositorios" element={<RepositoriosPage />} />
+            <Route path="ranking-area" element={<RankingAreaPage />} />
+            <Route path="ranking-sede" element={<RankingSedePage />} />
+            <Route path="resultados" element={<ResultadosPage />} />
+          </Route>
         </Route>
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </BrowserRouter>
   );

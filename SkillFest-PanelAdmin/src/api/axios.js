@@ -1,10 +1,22 @@
-import axios from "axios";
+import axios from 'axios';
 
-const api = axios.create({
-  baseURL: "http://localhost:8080/api",
-  headers: {
-    "Content-Type": "application/json",
-  },
+const clienteAxios = axios.create({
+    baseURL: 'http://localhost:8080/api'
 });
 
-export default api;
+// Este "Interceptor" actúa como un peaje: cada vez que sale una petición,
+// revisa si hay un token en el localStorage y lo pega.
+clienteAxios.interceptors.request.use(
+    (config) => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    }
+);
+
+export default clienteAxios;

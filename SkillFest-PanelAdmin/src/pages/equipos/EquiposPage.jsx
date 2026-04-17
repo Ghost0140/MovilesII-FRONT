@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import PageHeader from "../../components/PageHeader";
 import { aprobarEquipo, cambiarEstadoEquipo, getEquipos } from "../../api/equipos";
 
-const estadosEquipo = ["PENDIENTE", "APROBADO", "RECHAZADO", "INACTIVO", "ELIMINADO"];
+const estadosEquipo = ["PENDIENTE", "RECHAZADO", "INACTIVO", "ELIMINADO"];
 
 function EquiposPage() {
   const [equipos, setEquipos] = useState([]);
@@ -38,6 +38,12 @@ function EquiposPage() {
   }, [equipos, estadoFiltro]);
 
   const handleCambiarEstado = async (equipoId, estado) => {
+    if (estado === "ELIMINADO") {
+      const confirmar = window.confirm(
+        "¿Estás seguro de eliminar este equipo? Este cambio hará que el equipo desaparezca de la lista."
+      );
+      if (!confirmar) return; 
+    }
     try {
       await cambiarEstadoEquipo(equipoId, estado);
       await cargarEquipos();

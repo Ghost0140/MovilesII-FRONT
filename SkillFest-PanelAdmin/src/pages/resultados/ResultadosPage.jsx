@@ -6,6 +6,7 @@ import {
   getResultados,
   publicarResultados,
 } from "../../api/resultados";
+import { getEventos } from "../../api/eventos";
 
 function ResultadosPage() {
   const [resultados, setResultados] = useState([]);
@@ -19,7 +20,8 @@ function ResultadosPage() {
     totalElementos: 0,
   });
   const [modalOpen, setModalOpen] = useState(false);
-  const [eventoPublicarId, setEventoPublicarId] = useState("1");
+  const [eventoPublicarId, setEventoPublicarId] = useState("");
+  const [eventosLista, setEventosLista] = useState([]);
 
   const cargarResultados = async () => {
     try {
@@ -48,6 +50,18 @@ function ResultadosPage() {
     cargarResultados();
   }, [page]);
 
+  useEffect(() => {
+    const cargarListaEventos = async () => {
+      try {
+        const response = await getEventos();
+        setEventosLista(response.data || response || []);
+      } catch (err) {
+        console.error("No se pudo cargar la lista de eventos", err);
+      }
+    };
+    cargarListaEventos();
+  }, []);
+
   const handleCalcular = async (payload) => {
     try {
       setSaving(true);
@@ -66,6 +80,16 @@ function ResultadosPage() {
   };
 
   const handlePublicar = async () => {
+    if (!eventoPublicarId) {
+      alert("Por favor, selecciona un evento antes de publicar.");
+      return;
+    }
+
+    const confirmar = window.confirm(
+      "¿Estás completamente seguro de publicar estos resultados? Los estudiantes podrán verlos en la aplicación móvil inmediatamente."
+    );
+    if (!confirmar) return;
+
     try {
       await publicarResultados(Number(eventoPublicarId));
       alert("Resultados publicados correctamente.");
@@ -96,12 +120,23 @@ function ResultadosPage() {
 
           <div className="toolbar-group">
             <label>ID Evento para publicar</label>
-            <input
-              type="number"
-              min="1"
+            <select
               value={eventoPublicarId}
               onChange={(e) => setEventoPublicarId(e.target.value)}
-            />
+            >
+              <option value="">-- Seleccione un evento --</option>
+              {eventosLista.length > 0 ? (
+                eventosLista.map((evento) => (
+                  <option key={evento.id} value={evento.id}>
+                    {evento.nombre}
+                  </option>
+                ))
+              ) : (
+                <option value="" disabled>
+                  Cargando eventos...
+                </option>
+              )}
+            </select>
           </div>
 
           <div className="toolbar-actions">

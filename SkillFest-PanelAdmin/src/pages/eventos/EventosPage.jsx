@@ -108,6 +108,12 @@ function EventosPage() {
   };
 
   const handleCambiarEstado = async (id, estado) => {
+    if (estado === "ELIMINADO" || estado === "CANCELADO") {
+      const confirmar = window.confirm(
+        `⚠️ ¿Estás totalmente seguro de marcar este evento como ${estado}? Esta acción afectará a todos los equipos y proyectos inscritos.`
+      );
+      if (!confirmar) return; // Si cancela, no hacemos nada
+    }
     try {
       await cambiarEstadoEvento(id, estado);
       await cargarEventos();

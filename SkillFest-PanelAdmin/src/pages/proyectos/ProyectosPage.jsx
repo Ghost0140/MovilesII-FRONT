@@ -82,13 +82,33 @@ function ProyectosPage() {
         type: "success",
         message: successMessage,
       });
+
+      setTimeout(() => setFeedback({ type: "", message: "" }), 4000);
+
     } catch (err) {
+
+      console.error("Error crudo desde el backend:", err);
+
+      const status = err?.response?.status;
+      
+      const textoError = String(
+        err?.response?.data?.detalle || 
+        err?.response?.data?.message || 
+        err?.message || 
+        ""
+      ).toLowerCase();
+
+      let mensajeFinal = "No se pudo ejecutar la acción";
+
+      if (status === 400 || status === 404 || textoError.includes("github")) {
+        mensajeFinal = "Error: El repositorio de GitHub no es válido, no existe o es Privado. Verifica el enlace.";
+      } else {
+        mensajeFinal = err?.response?.data?.detalle || "Ocurrió un error inesperado en el servidor.";
+      }
+
       setFeedback({
         type: "error",
-        message:
-          err?.response?.data?.detalle ||
-          err?.message ||
-          "No se pudo ejecutar la acción",
+        message: mensajeFinal,
       });
     } finally {
       setActionLoadingId(null);

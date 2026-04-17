@@ -1,17 +1,24 @@
 import { useEffect, useState } from "react";
 import PageHeader from "../../components/PageHeader";
 import { getRankingArea } from "../../api/rankingArea";
+import { getEventos } from "../../api/eventos";
 
 const areas = ["FRONTEND", "BACKEND", "BD", "MOBILE", "TESTING"];
 
 function RankingAreaPage() {
-  const [eventoId, setEventoId] = useState("1");
+  const [eventoId, setEventoId] = useState("");
   const [area, setArea] = useState("BACKEND");
   const [ranking, setRanking] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [eventosLista, setEventosLista] = useState([]);
 
   const cargarRanking = async () => {
+
+    if (!eventoId) {
+      setError("Por favor, selecciona un evento antes de consultar.");
+      return;
+    }
     try {
       setLoading(true);
       setError("");
@@ -29,8 +36,19 @@ function RankingAreaPage() {
   };
 
   useEffect(() => {
-    cargarRanking();
+    const cargarListaEventos = async () => {
+      try {
+        const response = await getEventos();
+        setEventosLista(response.data || response || []);
+      } catch (err) {
+        console.error("No se pudo cargar la lista de eventos", err);
+      }
+    };
+
+    cargarListaEventos();
   }, []);
+
+  
 
   return (
     <div>
@@ -42,13 +60,22 @@ function RankingAreaPage() {
       <div className="card mb-16">
         <div className="toolbar">
           <div className="toolbar-group">
-            <label>ID Evento</label>
-            <input
-              type="number"
-              min="1"
+            <label>Evento</label>
+            <select
               value={eventoId}
               onChange={(e) => setEventoId(e.target.value)}
-            />
+            ><option value="">-- Seleccione un evento --</option>
+              {eventosLista.length > 0 ? (
+                eventosLista.map((evento) => (
+                  <option key={evento.id} value={evento.id}>
+                    {evento.nombre}
+                  </option>
+                ))
+              ) : (
+                <option value="" disabled>
+                  Cargando eventos...
+                </option>
+              )}</select>
           </div>
 
           <div className="toolbar-group">

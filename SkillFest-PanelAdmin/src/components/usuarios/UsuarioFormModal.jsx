@@ -74,6 +74,7 @@ function UsuarioFormModal({
         : {
             nombres: form.nombres.trim(),
             apellidos: form.apellidos.trim(),
+            email: form.email.trim(),
             sedeId: Number(form.sedeId),
             carrera: form.carrera.trim() || null,
             ciclo: form.ciclo ? Number(form.ciclo) : null,
@@ -94,6 +95,12 @@ function UsuarioFormModal({
             ✕
           </button>
         </div>
+
+        {mode === "edit" && usuario && !usuario.activo && (
+          <div className="card mb-16" style={{ backgroundColor: "#fff3cd", color: "#856404", padding: "10px", border: "1px solid #ffeeba", borderRadius: "4px" }}>
+            <strong>Atención:</strong> Estás editando a un usuario que actualmente se encuentra <strong>Inactivo</strong>.
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="form-grid">
           <div className="form-group">
@@ -116,19 +123,19 @@ function UsuarioFormModal({
             />
           </div>
 
+          <div className="form-group">
+              <label>Email</label>
+              <input
+                name="email"
+                type="email"
+                value={form.email}
+                onChange={handleChange}
+                required
+              />
+          </div>
+
           {mode === "create" ? (
             <>
-              <div className="form-group">
-                <label>Email</label>
-                <input
-                  name="email"
-                  type="email"
-                  value={form.email}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-
               <div className="form-group">
                 <label>Contraseña</label>
                 <input
