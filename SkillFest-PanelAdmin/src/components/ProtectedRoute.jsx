@@ -8,7 +8,7 @@ const ProtectedRoute = ({ rolesPermitidos }) => {
   // 1. VERIFICACIÓN DE IDENTIDAD (Tu código original)
   // Si no hay token, lo pateamos al login sin piedad.
   if (!token) {
-    return <Navigate to="/" replace />; // Ajusta a '/login' si esa es tu ruta inicial
+    return <Navigate to="/login" replace />; // Ajusta a '/login' si esa es tu ruta inicial
   }
 
   // 2. VERIFICACIÓN DE PERMISOS (El nuevo escudo)
