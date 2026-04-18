@@ -21,21 +21,39 @@ function AppRouter() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<Login />} />
+        
+        {/* 🛡️ PRIMER ESCUDO: Verifica que tengas Token (Estás logueado) */}
         <Route element={<ProtectedRoute />}>
+          
+          {/* El AdminLayout envuelve todo para que el Menú/Sidebar siempre se vea */}
           <Route path="/" element={<AdminLayout />}>
+            
+            {/* 🟢 ZONA GENERAL: Cualquier logueado puede ver esto (Alumnos, Jurados, Admins) */}
             <Route index element={<Navigate to="/dashboard" replace />} />
             <Route path="dashboard" element={<DashboardPage />} />
-            <Route path="usuarios" element={<UsuariosPage />} />
-            <Route path="eventos" element={<EventosPage />} />
-            <Route path="equipos" element={<EquiposPage />} />
-            <Route path="evaluaciones" element={<EvaluacionesPage />} />
-            <Route path="proyectos" element={<ProyectosPage />} />
+            
+            {/* Puedes mover aquí otras rutas que quieras que vean todos (ej. su propio portafolio) */}
             <Route path="portafolio" element={<PortafolioPage />} />
-            <Route path="contribuciones" element={<ContribucionesPage />} />
-            <Route path="repositorios" element={<RepositoriosPage />} />
-            <Route path="ranking-area" element={<RankingAreaPage />} />
-            <Route path="ranking-sede" element={<RankingSedePage />} />
-            <Route path="resultados" element={<ResultadosPage />} />
+
+            {/* 🔴 ZONA RESTRINGIDA: Solo Administradores (y/o Profesores) */}
+            {/* Ajusta el texto 'ADMIN' según cómo esté escrito exactamente en tu Base de Datos */}
+            <Route element={<ProtectedRoute rolesPermitidos={['ADMIN', 'PROFESOR']} />}>
+              <Route path="usuarios" element={<UsuariosPage />} />
+              <Route path="eventos" element={<EventosPage />} />
+              <Route path="equipos" element={<EquiposPage />} />
+              <Route path="proyectos" element={<ProyectosPage />} />
+              <Route path="contribuciones" element={<ContribucionesPage />} />
+              <Route path="repositorios" element={<RepositoriosPage />} />
+              <Route path="ranking-area" element={<RankingAreaPage />} />
+              <Route path="ranking-sede" element={<RankingSedePage />} />
+            </Route>
+
+            {/* 🔵 ZONA JURADOS: Ejemplo de cómo separar otra área en el futuro */}
+            <Route element={<ProtectedRoute rolesPermitidos={['ADMIN', 'JURADO']} />}>
+               <Route path="evaluaciones" element={<EvaluacionesPage />} />
+               <Route path="resultados" element={<ResultadosPage />} />
+            </Route>
+
           </Route>
         </Route>
         <Route path="*" element={<Navigate to="/login" replace />} />

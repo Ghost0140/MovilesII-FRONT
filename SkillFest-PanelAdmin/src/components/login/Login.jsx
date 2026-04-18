@@ -24,7 +24,27 @@ const Login = () => {
       });
 
       if (!respuesta.ok) {
-        throw new Error('Correo o contraseña incorrectos');
+        if (respuesta.status === 403 || respuesta.status === 401) {
+          const textResponse = await respuesta.text();
+          let mensajeFinal = 'Tu cuenta está inactiva. Contacta al administrador.'; // Mensaje por defecto
+
+          try {
+            // Intentamos extraer el JSON
+            const errorData = JSON.parse(textResponse);
+            if (errorData.message) {
+              mensajeFinal = errorData.message;
+            }
+          } catch {
+            // Si no es JSON y hay texto, usamos el texto
+            if (textResponse) {
+              mensajeFinal = textResponse;
+            }
+          }
+          
+          // Lanzamos el error UNA SOLA VEZ, fuera del try-catch
+          throw new Error(mensajeFinal);
+        }
+        throw new Error('Error al conectar con el servidor');
       }
 
       const data = await respuesta.json();
