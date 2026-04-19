@@ -15,29 +15,37 @@ import RankingAreaPage from "../pages/ranking-area/RankingAreaPage";
 import RankingSedePage from "../pages/ranking-sede/RankingSedePage";
 import ResultadosPage from "../pages/resultados/ResultadosPage";
 import ProtectedRoute from "../components/ProtectedRoute";
+import RoleRedirect from "../components/RoleRedirect";
+
+import RadarAlumnoPage from "../pages/radar/RadarAlumnoPage";
+import AppRankingsPage from "../pages/app-rankings/AppRankingsPage";
+import ReclutadorPage from "../pages/reclutador/ReclutadorPage";
+import AppDashboardPage from "../pages/app-dashboard/AppDashboardPage";
 
 function AppRouter() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<Login />} />
-        
-        {/* 🛡️ PRIMER ESCUDO: Verifica que tengas Token (Estás logueado) */}
-        <Route element={<ProtectedRoute />}>
-          
-          {/* El AdminLayout envuelve todo para que el Menú/Sidebar siempre se vea */}
-          <Route path="/" element={<AdminLayout />}>
-            
-            {/* 🟢 ZONA GENERAL: Cualquier logueado puede ver esto (Alumnos, Jurados, Admins) */}
-            <Route index element={<Navigate to="/dashboard" replace />} />
-            <Route path="dashboard" element={<DashboardPage />} />
-            
-            {/* Puedes mover aquí otras rutas que quieras que vean todos (ej. su propio portafolio) */}
-            <Route path="portafolio" element={<PortafolioPage />} />
 
-            {/* 🔴 ZONA RESTRINGIDA: Solo Administradores (y/o Profesores) */}
-            {/* Ajusta el texto 'ADMIN' según cómo esté escrito exactamente en tu Base de Datos */}
-            <Route element={<ProtectedRoute rolesPermitidos={['ADMIN', 'PROFESOR']} />}>
+        <Route element={<ProtectedRoute />}>
+          <Route path="/" element={<AdminLayout />}>
+            <Route index element={<RoleRedirect />} />
+
+            <Route path="dashboard" element={<DashboardPage />} />
+
+            <Route
+                element={
+            <ProtectedRoute rolesPermitidos={["ESTUDIANTE"]} />
+            }
+            >
+          <Route path="app-dashboard" element={<AppDashboardPage />} />
+          <Route path="mi-radar" element={<RadarAlumnoPage />} />
+          </Route>
+
+          <Route path="portafolio" element={<PortafolioPage />} />
+
+            <Route element={<ProtectedRoute rolesPermitidos={["ADMIN", "PROFESOR"]} />}>
               <Route path="usuarios" element={<UsuariosPage />} />
               <Route path="eventos" element={<EventosPage />} />
               <Route path="equipos" element={<EquiposPage />} />
@@ -48,14 +56,24 @@ function AppRouter() {
               <Route path="ranking-sede" element={<RankingSedePage />} />
             </Route>
 
-            {/* 🔵 ZONA JURADOS: Ejemplo de cómo separar otra área en el futuro */}
-            <Route element={<ProtectedRoute rolesPermitidos={['ADMIN', 'JURADO']} />}>
-               <Route path="evaluaciones" element={<EvaluacionesPage />} />
-               <Route path="resultados" element={<ResultadosPage />} />
+            <Route
+              element={
+                <ProtectedRoute
+                  rolesPermitidos={["ADMIN", "PROFESOR", "ORGANIZADOR", "RECLUTADOR"]}
+                />
+              }
+            >
+              <Route path="app-rankings" element={<AppRankingsPage />} />
+              <Route path="reclutador" element={<ReclutadorPage />} />
             </Route>
 
+            <Route element={<ProtectedRoute rolesPermitidos={["ADMIN", "JURADO"]} />}>
+              <Route path="evaluaciones" element={<EvaluacionesPage />} />
+              <Route path="resultados" element={<ResultadosPage />} />
+            </Route>
           </Route>
         </Route>
+
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </BrowserRouter>
