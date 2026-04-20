@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import PageHeader from "../../components/PageHeader";
 import { aprobarEquipo, cambiarEstadoEquipo, getEquipos } from "../../api/equipos";
 
@@ -9,28 +9,33 @@ function EquiposPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [estadoFiltro, setEstadoFiltro] = useState("");
-  const [organizadorId, setOrganizadorId] = useState("1");
 
-  const cargarEquipos = async () => {
+  // 1. Agrega useCallback a tu import de react
+// ... dentro de tu componente EquiposPage ...
+
+  const cargarEquipos = useCallback(async () => {
     try {
       setLoading(true);
       setError("");
       const response = await getEquipos();
-      setEquipos(response.data || []);
+      
+      // ✅ CORRECCIÓN: Usa setEquipos, no setUsuarios
+      setEquipos(response.data || []); 
+      
     } catch (err) {
       setError(
         err?.response?.data?.detalle ||
-          err?.message ||
-          "No se pudo cargar equipos"
+        err?.message ||
+        "No se pudo cargar equipos"
       );
     } finally {
       setLoading(false);
     }
-  };
+  }, []); // Dependencias vacías para que la función se memorice correctamente
 
   useEffect(() => {
     cargarEquipos();
-  }, []);
+  }, [cargarEquipos]); // ✅ Ahora cargarEquipos es una dependencia válida y segura
 
   const equiposFiltrados = useMemo(() => {
     if (!estadoFiltro) return equipos;
@@ -58,14 +63,20 @@ function EquiposPage() {
 
   const handleAprobar = async (equipoId) => {
     try {
-      await aprobarEquipo(equipoId, Number(organizadorId));
+      // 🛡️ SEGURIDAD: Sacamos el ID real del administrador logueado
+      const adminId = localStorage.getItem("usuarioId");
+      
+      if (!adminId) {
+        alert("Error: No se detectó tu sesión de administrador. Reintenta el login.");
+        return;
+      }
+
+      // Enviamos el ID real al backend
+      await aprobarEquipo(equipoId, Number(adminId));
       await cargarEquipos();
+      
     } catch (err) {
-      alert(
-        err?.response?.data?.detalle ||
-          err?.message ||
-          "No se pudo aprobar el equipo"
-      );
+      alert(err?.response?.data?.detalle || err?.message || "No se pudo aprobar el equipo");
     }
   };
 
@@ -88,16 +99,6 @@ function EquiposPage() {
                 </option>
               ))}
             </select>
-          </div>
-
-          <div className="toolbar-group">
-            <label>ID organizador</label>
-            <input
-              type="number"
-              min="1"
-              value={organizadorId}
-              onChange={(e) => setOrganizadorId(e.target.value)}
-            />
           </div>
         </div>
       </div>

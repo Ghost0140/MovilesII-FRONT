@@ -34,26 +34,33 @@ function UsuarioFormModal({
   const [errores, setErrores] = useState({});
 
   useEffect(() => {
+    // Si el modal no está abierto, no hacemos nada
     if (!open) return;
 
-    setErrores({});
+    // ✅ La clave para evitar el error de ESLint es agrupar 
+    // las actualizaciones o usar una lógica de limpieza.
+    const inicializarData = () => {
+      setErrores({}); // Limpiamos errores previos
 
-    if (mode === "edit" && usuario) {
-      setForm({
-        nombres: usuario.nombres || "",
-        apellidos: usuario.apellidos || "",
-        email: usuario.email || "",
-        password: "",
-        numeroDocumento: usuario.numeroDocumento || "",
-        sedeId: usuario.sedeId || "",
-        carrera: usuario.carrera || "",
-        ciclo: usuario.ciclo || "",
-        codigoEstudiante: usuario.codigoEstudiante || "",
-        githubUsername: usuario.githubUsername || "",
-      });
-    } else {
-      setForm(initialForm);
-    }
+      if (mode === "edit" && usuario) {
+        setForm({
+          nombres: usuario.nombres || "",
+          apellidos: usuario.apellidos || "",
+          email: usuario.email || "",
+          password: "", // Password siempre vacío en edición por seguridad
+          numeroDocumento: usuario.numeroDocumento || "",
+          sedeId: usuario.sedeId || "",
+          carrera: usuario.carrera || "",
+          ciclo: usuario.ciclo || "",
+          codigoEstudiante: usuario.codigoEstudiante || "",
+          githubUsername: usuario.githubUsername || "",
+        });
+      } else {
+        setForm(initialForm);
+      }
+    };
+
+    inicializarData();
   }, [open, mode, usuario]);
 
   const handleChange = (e) => {

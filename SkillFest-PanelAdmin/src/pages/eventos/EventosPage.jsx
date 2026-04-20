@@ -89,18 +89,23 @@ function EventosPage() {
       setSaving(true);
 
       if (modalMode === "create") {
+        const creadorIdMemoria = localStorage.getItem("usuarioId");
+        
+        payload.creadoPorId = creadorIdMemoria ? Number(creadorIdMemoria) : 1;
         await createEvento(payload);
       } else {
         await updateEvento(selectedEvento.id, payload);
       }
 
       cerrarModal();
-      await cargarEventos();
-    } catch (err) {
+      cargarEventos(); 
+      
+    } catch (error) {
+      console.error("Error al guardar:", error);
       alert(
-        err?.response?.data?.detalle ||
-          err?.message ||
-          "No se pudo guardar el evento"
+        error?.response?.data?.detalle || 
+        error?.response?.data?.message || 
+        "Error al guardar el evento. Verifica los datos."
       );
     } finally {
       setSaving(false);

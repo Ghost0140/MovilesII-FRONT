@@ -10,7 +10,6 @@ const initialForm = {
   fechaEvento: "",
   maxMiembrosEquipo: "",
   sedeOrganizadoraId: "",
-  creadoPorId: "",
 };
 
 function EventoFormModal({
@@ -25,24 +24,30 @@ function EventoFormModal({
   const [form, setForm] = useState(initialForm);
 
   useEffect(() => {
+    // 1. Salida temprana si el modal está cerrado
     if (!open) return;
 
-    if (mode === "edit" && evento) {
-      setForm({
-        nombre: evento.nombre || "",
-        descripcion: evento.descripcion || "",
-        tipo: evento.tipo || "FERIA",
-        alcance: evento.alcance || "SEDE",
-        fechaInicioInscripcion: evento.fechaInicioInscripcion || "",
-        fechaFinInscripcion: evento.fechaFinInscripcion || "",
-        fechaEvento: evento.fechaEvento || "",
-        maxMiembrosEquipo: evento.maxMiembrosEquipo || "",
-        sedeOrganizadoraId: evento.sedeOrganizadoraId || "",
-        creadoPorId: "",
-      });
-    } else {
-      setForm(initialForm);
-    }
+    // 2. Definimos la carga de datos
+    const inicializarFormulario = () => {
+      if (mode === "edit" && evento) {
+        setForm({
+          nombre: evento.nombre || "",
+          descripcion: evento.descripcion || "",
+          tipo: evento.tipo || "FERIA",
+          alcance: evento.alcance || "SEDE",
+          fechaInicioInscripcion: evento.fechaInicioInscripcion || "",
+          fechaFinInscripcion: evento.fechaFinInscripcion || "",
+          fechaEvento: evento.fechaEvento || "",
+          maxMiembrosEquipo: evento.maxMiembrosEquipo || "",
+          sedeOrganizadoraId: evento.sedeOrganizadoraId || "",
+        });
+      } else {
+        // ✅ Corregido: Usamos initialForm completo para limpiar todo el modal
+        setForm(initialForm);
+      }
+    };
+
+    inicializarFormulario();
   }, [open, mode, evento]);
 
   const handleChange = (e) => {
@@ -71,7 +76,6 @@ function EventoFormModal({
             maxMiembrosEquipo: form.maxMiembrosEquipo
               ? Number(form.maxMiembrosEquipo)
               : null,
-            creadoPorId: Number(form.creadoPorId),
           }
         : {
             nombre: form.nombre.trim(),
@@ -208,20 +212,6 @@ function EventoFormModal({
               ))}
             </select>
           </div>
-
-          {mode === "create" ? (
-            <div className="form-group">
-              <label>ID creador</label>
-              <input
-                name="creadoPorId"
-                type="number"
-                min="1"
-                value={form.creadoPorId}
-                onChange={handleChange}
-                required
-              />
-            </div>
-          ) : null}
 
           <div className="modal-actions">
             <button

@@ -49,11 +49,24 @@ const Login = () => {
 
       const data = await respuesta.json();
 
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('userRol', data.rol);
-      localStorage.setItem('userEmail', data.email);
+      console.log("DEBUG LOGIN - Respuesta completa:", data);
 
-      navigate('/dashboard');
+      if (data.token) {
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('userRol', data.rol);
+        localStorage.setItem('userEmail', data.email);
+        
+        const idParaGuardar = data.id || data.usuarioId;
+        
+        if (idParaGuardar) {
+          localStorage.setItem('usuarioId', String(idParaGuardar));
+          console.log("✅ ID guardado correctamente:", idParaGuardar);
+        } else {
+          console.error("❌ Ojo: El ID no llegó en el JSON del servidor");
+        }
+
+        navigate('/dashboard');
+      }
       
 
     } catch (err) {
