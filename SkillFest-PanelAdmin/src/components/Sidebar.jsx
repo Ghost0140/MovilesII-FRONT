@@ -4,6 +4,7 @@ const menu = [
   { to: "/dashboard", label: "Dashboard", roles: ["ADMIN", "PROFESOR", "ORGANIZADOR"] },
   { to: "/app-dashboard", label: "Dashboard App", roles: ["ESTUDIANTE"] },
   { to: "/mi-radar", label: "Mi Talent Radar", roles: ["ESTUDIANTE"] },
+  { to: "/inscribir", label: "Inscripción", roles: ["ESTUDIANTE"] },
   { to: "/portafolio", label: "Portafolio", roles: ["ESTUDIANTE", "RECLUTADOR", "ADMIN", "PROFESOR", "ORGANIZADOR"] },
 
   { to: "/usuarios", label: "Usuarios", roles: ["ADMIN", "PROFESOR"] },
@@ -15,6 +16,7 @@ const menu = [
 
   { to: "/ranking-area", label: "Ranking Área", roles: ["ADMIN", "PROFESOR", "ORGANIZADOR"] },
   { to: "/ranking-sede", label: "Ranking Sede", roles: ["ADMIN", "PROFESOR", "ORGANIZADOR"] },
+
 
   { to: "/app-rankings", label: "Rankings App", roles: ["ADMIN", "PROFESOR", "ORGANIZADOR", "RECLUTADOR"] },
   { to: "/reclutador", label: "Reclutador", roles: ["ADMIN", "PROFESOR", "ORGANIZADOR", "RECLUTADOR"] },

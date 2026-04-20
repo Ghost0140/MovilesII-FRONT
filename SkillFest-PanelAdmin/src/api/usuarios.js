@@ -1,14 +1,15 @@
 import api from "./axios";
 
-export const getUsuarios = async ({ page = 0, size = 10, activo = "" } = {}) => {
+export const getUsuarios = async ({ page = 0, size = 10, activo = null } = {}) => {
   const params = { page, size };
 
-  if (activo !== "") {
-    params.activo = activo;
-  }
+  // Solo enviamos 'activo' si es explícitamente true o false, no ""
+  if (activo !== null) {
+  params.activo = activo;
+}
 
   const response = await api.get("/usuarios", { params });
-  return response.data;
+  return response.data; // Retorna el objeto { data: [...], totalPaginas: ... }
 };
 
 export const createUsuario = async (payload) => {

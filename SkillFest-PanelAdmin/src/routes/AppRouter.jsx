@@ -21,6 +21,7 @@ import RadarAlumnoPage from "../pages/radar/RadarAlumnoPage";
 import AppRankingsPage from "../pages/app-rankings/AppRankingsPage";
 import ReclutadorPage from "../pages/reclutador/ReclutadorPage";
 import AppDashboardPage from "../pages/app-dashboard/AppDashboardPage";
+import InscribirPage from "../pages/inscribir/InscribirPage";
 
 function AppRouter() {
   return (
@@ -41,6 +42,7 @@ function AppRouter() {
             >
           <Route path="app-dashboard" element={<AppDashboardPage />} />
           <Route path="mi-radar" element={<RadarAlumnoPage />} />
+          <Route path="inscribir" element={<InscribirPage />} />
           </Route>
 
           <Route path="portafolio" element={<PortafolioPage />} />

@@ -16,3 +16,8 @@ export const aprobarEquipo = async (id, organizadorId) => {
   });
   return response.data;
 };
+
+export const inscribirEquipo = async (payload) => {
+  const response = await api.post("/equipos/inscribir", payload);
+  return response.data;
+};

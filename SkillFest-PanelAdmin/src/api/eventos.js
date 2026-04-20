@@ -19,3 +19,8 @@ export const cambiarEstadoEvento = async (id, estado) => {
   const response = await api.patch(`/eventos/${id}/estado`, { estado });
   return response.data;
 };
+
+export const getEventosPublicados = async () => {
+  const response = await api.get("/eventos/publicados");
+  return response.data; // El controlador devuelve { mensaje, data }
+};

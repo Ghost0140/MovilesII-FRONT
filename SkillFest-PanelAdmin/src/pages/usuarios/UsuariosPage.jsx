@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback} from "react";
 import PageHeader from "../../components/PageHeader";
 import UsuarioFormModal from "../../components/usuarios/UsuarioFormModal";
 import {
@@ -26,16 +26,16 @@ function UsuariosPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState("create");
   const [selectedUsuario, setSelectedUsuario] = useState(null);
-
-  const cargarUsuarios = async () => {
+  const cargarUsuarios = useCallback(async () => {
     try {
       setLoading(true);
       setError("");
+      const valorActivo = activoFiltro === "" ? null : activoFiltro === "true";
 
       const response = await getUsuarios({
         page,
         size: 10,
-        activo: activoFiltro,
+        activo: valorActivo,
       });
 
       setUsuarios(response.data || []);
@@ -45,32 +45,43 @@ function UsuariosPage() {
         totalElementos: response.totalElementos ?? 0,
       });
     } catch (err) {
-      setError(
-        err?.response?.data?.detalle ||
-          err?.message ||
-          "No se pudo cargar usuarios"
-      );
+      setError(err?.response?.data?.detalle || err?.message || "No se pudo cargar usuarios");
     } finally {
       setLoading(false);
     }
-  };
-
-  const cargarSedes = async () => {
-    try {
-      const response = await getSedes();
-      setSedes(response.data || response || []);
-    } catch {
-      setSedes([]);
-    }
-  };
-
-  useEffect(() => {
-    cargarUsuarios();
   }, [page, activoFiltro]);
 
   useEffect(() => {
+    const fetchSedes = async () => {
+      try {
+        const response = await getSedes();
+        setSedes(response.data || response || []);
+      } catch (err) {
+        console.error("Error al cargar sedes:", err);
+        setSedes([]);
+      }
+    };
+
+    fetchSedes();
+  }, []); // Se ejecuta una sola vez al montar el componente
+
+  // Para cargar usuarios
+useEffect(() => {
+  cargarUsuarios();
+}, [cargarUsuarios]); // ✅ Ahora cargarUsuarios es una dependencia válida
+
+// Para cargar sedes (puedes meter la lógica dentro para simplificar)
+  useEffect(() => {
+    const cargarSedes = async () => {
+      try {
+        const response = await getSedes();
+        setSedes(response.data || response || []);
+      } catch {
+        setSedes([]);
+      }
+    };
     cargarSedes();
-  }, []);
+  }, []); // Se ejecuta solo una vez al montar
 
   const abrirCrear = () => {
     setModalMode("create");
@@ -253,6 +264,7 @@ function UsuariosPage() {
       </div>
 
       <UsuarioFormModal
+        key={selectedUsuario?.id || 'nuevo-usuario'}
         open={modalOpen}
         mode={modalMode}
         usuario={selectedUsuario}
