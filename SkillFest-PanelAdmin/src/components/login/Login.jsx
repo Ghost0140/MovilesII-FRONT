@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; 
+import { useNavigate } from 'react-router-dom';
+import api from '../../api/axios';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -15,62 +16,38 @@ const Login = () => {
     setCargando(true);
 
     try {
-      const respuesta = await fetch('http://localhost:9090/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
+      const respuesta = await api.post('/auth/login', {
+        email,
+        password,
       });
 
-      if (!respuesta.ok) {
-        if (respuesta.status === 403 || respuesta.status === 401) {
-          const textResponse = await respuesta.text();
-          let mensajeFinal = 'Tu cuenta está inactiva. Contacta al administrador.'; // Mensaje por defecto
+      const data = respuesta.data;
 
-          try {
-            // Intentamos extraer el JSON
-            const errorData = JSON.parse(textResponse);
-            if (errorData.message) {
-              mensajeFinal = errorData.message;
-            }
-          } catch {
-            // Si no es JSON y hay texto, usamos el texto
-            if (textResponse) {
-              mensajeFinal = textResponse;
-            }
-          }
-          
-          // Lanzamos el error UNA SOLA VEZ, fuera del try-catch
-          throw new Error(mensajeFinal);
-        }
-        throw new Error('Error al conectar con el servidor');
-      }
-
-      const data = await respuesta.json();
-
-      console.log("DEBUG LOGIN - Respuesta completa:", data);
+      console.log('DEBUG LOGIN - Respuesta completa:', data);
 
       if (data.token) {
         localStorage.setItem('token', data.token);
         localStorage.setItem('userRol', data.rol);
         localStorage.setItem('userEmail', data.email);
-        
+
         const idParaGuardar = data.id || data.usuarioId;
-        
+
         if (idParaGuardar) {
           localStorage.setItem('usuarioId', String(idParaGuardar));
-          console.log("✅ ID guardado correctamente:", idParaGuardar);
+          console.log('✅ ID guardado correctamente:', idParaGuardar);
         } else {
-          console.error("❌ Ojo: El ID no llegó en el JSON del servidor");
+          console.error('❌ Ojo: El ID no llegó en el JSON del servidor');
         }
 
         navigate('/dashboard');
       }
-      
-
     } catch (err) {
-      setError(err.message);
+      const mensaje =
+        err.response?.data?.message ||
+        err.message ||
+        'Error al conectar con el servidor';
+
+      setError(mensaje);
     } finally {
       setCargando(false);
     }
@@ -79,15 +56,14 @@ const Login = () => {
   return (
     <div style={{ maxWidth: '400px', margin: '50px auto', fontFamily: 'sans-serif' }}>
       <h2>Iniciar Sesión en SkillsFest</h2>
-      
+
       {error && <div style={{ color: 'red', marginBottom: '15px' }}>{error}</div>}
 
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-        
         <div>
           <label>Correo Electrónico:</label>
-          <input 
-            type="email" 
+          <input
+            type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
@@ -97,8 +73,8 @@ const Login = () => {
 
         <div>
           <label>Contraseña:</label>
-          <input 
-            type="password" 
+          <input
+            type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
@@ -106,14 +82,19 @@ const Login = () => {
           />
         </div>
 
-        <button 
-          type="submit" 
+        <button
+          type="submit"
           disabled={cargando}
-          style={{ padding: '10px', backgroundColor: '#0056b3', color: 'white', border: 'none', cursor: 'pointer' }}
+          style={{
+            padding: '10px',
+            backgroundColor: '#0056b3',
+            color: 'white',
+            border: 'none',
+            cursor: 'pointer',
+          }}
         >
           {cargando ? 'Ingresando...' : 'Ingresar'}
         </button>
-
       </form>
     </div>
   );
