@@ -13,8 +13,8 @@ function DashboardPage() {
         setLoading(true);
         setError("");
 
-        const response = await getDashboardResumen();
-        setDashboard(response.data.data);
+        const data = await getDashboardResumen();
+setDashboard(data);
       } catch (err) {
         setError(
           err?.response?.data?.detalle ||
