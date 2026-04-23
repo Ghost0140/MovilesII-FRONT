@@ -1,25 +1,26 @@
 import { NavLink } from "react-router-dom";
 
 const menu = [
-  { to: "/dashboard", label: "Dashboard", roles: ["ADMIN", "PROFESOR", "ORGANIZADOR"] },
+  { to: "/dashboard", label: "Dashboard", roles: ["ADMIN", "ORGANIZADOR", "JURADO"] },
+  
   { to: "/app-dashboard", label: "Dashboard App", roles: ["ESTUDIANTE"] },
   { to: "/mi-radar", label: "Mi Talent Radar", roles: ["ESTUDIANTE"] },
   { to: "/inscribir", label: "Inscripción", roles: ["ESTUDIANTE"] },
-  { to: "/portafolio", label: "Portafolio", roles: ["ESTUDIANTE", "RECLUTADOR", "ADMIN", "PROFESOR", "ORGANIZADOR"] },
+  
+  { to: "/portafolio", label: "Portafolio", roles: ["ESTUDIANTE", "RECLUTADOR", "ADMIN", "ORGANIZADOR"] },
 
-  { to: "/usuarios", label: "Usuarios", roles: ["ADMIN", "PROFESOR"] },
-  { to: "/eventos", label: "Eventos", roles: ["ADMIN", "PROFESOR", "ORGANIZADOR"] },
-  { to: "/equipos", label: "Equipos", roles: ["ADMIN", "PROFESOR", "ORGANIZADOR"] },
-  { to: "/proyectos", label: "Proyectos", roles: ["ADMIN", "PROFESOR", "ORGANIZADOR"] },
-  { to: "/contribuciones", label: "Contribuciones", roles: ["ADMIN", "PROFESOR", "ORGANIZADOR"] },
-  { to: "/repositorios", label: "Repositorios", roles: ["ADMIN", "PROFESOR", "ORGANIZADOR"] },
+  { to: "/usuarios", label: "Usuarios", roles: ["ADMIN"] },
+  { to: "/eventos", label: "Eventos", roles: ["ADMIN", "ORGANIZADOR"] },
+  { to: "/equipos", label: "Equipos", roles: ["ADMIN", "ORGANIZADOR"] },
+  { to: "/proyectos", label: "Proyectos", roles: ["ADMIN", "ORGANIZADOR"] },
+  { to: "/contribuciones", label: "Contribuciones", roles: ["ADMIN", "ORGANIZADOR"] },
+  { to: "/repositorios", label: "Repositorios", roles: ["ADMIN", "ORGANIZADOR"] },
 
-  { to: "/ranking-area", label: "Ranking Área", roles: ["ADMIN", "PROFESOR", "ORGANIZADOR"] },
-  { to: "/ranking-sede", label: "Ranking Sede", roles: ["ADMIN", "PROFESOR", "ORGANIZADOR"] },
-
-
-  { to: "/app-rankings", label: "Rankings App", roles: ["ADMIN", "PROFESOR", "ORGANIZADOR", "RECLUTADOR"] },
-  { to: "/reclutador", label: "Reclutador", roles: ["ADMIN", "PROFESOR", "ORGANIZADOR", "RECLUTADOR"] },
+  { to: "/ranking-area", label: "Ranking Área", roles: ["ADMIN", "ORGANIZADOR", "JURADO"] },
+  { to: "/ranking-sede", label: "Ranking Sede", roles: ["ADMIN", "ORGANIZADOR", "JURADO"] },
+  { to: "/app-rankings", label: "Rankings App", roles: ["ADMIN", "ORGANIZADOR", "RECLUTADOR"] },
+  
+  { to: "/reclutador", label: "Reclutador", roles: ["ADMIN", "ORGANIZADOR", "RECLUTADOR"] },
 
   { to: "/evaluaciones", label: "Evaluaciones", roles: ["ADMIN", "JURADO"] },
   { to: "/resultados", label: "Resultados", roles: ["ADMIN", "JURADO"] },

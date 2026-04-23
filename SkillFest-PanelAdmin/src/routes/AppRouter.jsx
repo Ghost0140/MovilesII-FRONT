@@ -47,13 +47,16 @@ function AppRouter() {
 
           <Route path="portafolio" element={<PortafolioPage />} />
 
-            <Route element={<ProtectedRoute rolesPermitidos={["ADMIN", "PROFESOR"]} />}>
+            <Route element={<ProtectedRoute rolesPermitidos={["ADMIN", "ORGANIZADOR"]} />}>
               <Route path="usuarios" element={<UsuariosPage />} />
               <Route path="eventos" element={<EventosPage />} />
               <Route path="equipos" element={<EquiposPage />} />
               <Route path="proyectos" element={<ProyectosPage />} />
               <Route path="contribuciones" element={<ContribucionesPage />} />
               <Route path="repositorios" element={<RepositoriosPage />} />
+            </Route>
+
+            <Route element={<ProtectedRoute rolesPermitidos={["ADMIN", "ORGANIZADOR", "JURADO"]} />}>
               <Route path="ranking-area" element={<RankingAreaPage />} />
               <Route path="ranking-sede" element={<RankingSedePage />} />
             </Route>
@@ -61,11 +64,14 @@ function AppRouter() {
             <Route
               element={
                 <ProtectedRoute
-                  rolesPermitidos={["ADMIN", "PROFESOR", "ORGANIZADOR", "RECLUTADOR"]}
+                  rolesPermitidos={["ADMIN", "ORGANIZADOR", "RECLUTADOR", "JURADO"]}
                 />
               }
             >
               <Route path="app-rankings" element={<AppRankingsPage />} />
+            </Route>
+
+            <Route element={<ProtectedRoute rolesPermitidos={["ADMIN", "ORGANIZADOR", "RECLUTADOR"]} />}>
               <Route path="reclutador" element={<ReclutadorPage />} />
             </Route>
 

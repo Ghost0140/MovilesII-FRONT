@@ -63,14 +63,12 @@ function UsuariosPage() {
     };
 
     fetchSedes();
-  }, []); // Se ejecuta una sola vez al montar el componente
+  }, []); 
 
-  // Para cargar usuarios
 useEffect(() => {
   cargarUsuarios();
-}, [cargarUsuarios]); // ✅ Ahora cargarUsuarios es una dependencia válida
+}, [cargarUsuarios]); 
 
-// Para cargar sedes (puedes meter la lógica dentro para simplificar)
   useEffect(() => {
     const cargarSedes = async () => {
       try {
@@ -81,7 +79,7 @@ useEffect(() => {
       }
     };
     cargarSedes();
-  }, []); // Se ejecuta solo una vez al montar
+  }, []); 
 
   const abrirCrear = () => {
     setModalMode("create");

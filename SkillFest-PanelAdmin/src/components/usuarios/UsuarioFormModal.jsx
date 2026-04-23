@@ -121,7 +121,9 @@ function UsuarioFormModal({
       nuevosErrores.numeroDocumento = "El documento debe tener 8 dígitos (DNI) o 9 dígitos (Carné de Extranjería).";
     }
 
-    if (form.codigoEstudiante && !/^u[0-9]{9}$/i.test(form.codigoEstudiante)) {
+    if (!form.codigoEstudiante.trim()) {
+      nuevosErrores.codigoEstudiante = "El código de estudiante es obligatorio.";
+    } else if (!/^u[0-9]{9}$/i.test(form.codigoEstudiante)) {
       nuevosErrores.codigoEstudiante = "El formato debe ser 'u' seguido de 9 números.";
     }
 
@@ -223,33 +225,45 @@ function UsuarioFormModal({
           </div>
 
           <div className="form-group">
-              <label>Email</label>
-              <input
-                name="email"
-                type="email"
-                value={form.email}
-                onChange={handleChange}
-                className={errores.email ? "input-error" : ""}
-              />
-              {errores.email && <span className="error-text">{errores.email}</span>}
+            <label>Email</label>
+            {mode === "create" ? (
+              <>
+                <input
+                  name="email"
+                  type="email"
+                  value={form.email}
+                  onChange={handleChange}
+                  className={errores.email ? "input-error" : ""}
+                />
+                {errores.email && <span className="error-text">{errores.email}</span>}
+              </>
+            ) : (
+              <div style={{ padding: "8px 12px", backgroundColor: "#e9ecef", border: "1px solid #ced4da", borderRadius: "4px", color: "#6c757d", cursor: "not-allowed", fontWeight: "500" }}>
+                {form.email}
+              </div>
+            )}
           </div>
 
-          {mode === "create" ? (
-            <>
-              <div className="form-group">
-                <label>Contraseña</label>
-                <input
-                  name="password"
-                  type="password"
-                  value={form.password}
-                  onChange={handleChange}
-                  className={errores.password ? "input-error" : ""}
-                />
-                {errores.password && <span className="error-text">{errores.password}</span>}
-              </div>
+          {/* 1. BLOQUE DE CONTRASEÑA (Este sí desaparece en edit) */}
+          {mode === "create" && (
+            <div className="form-group">
+              <label>Contraseña</label>
+              <input
+                name="password"
+                type="password"
+                value={form.password}
+                onChange={handleChange}
+                className={errores.password ? "input-error" : ""}
+              />
+              {errores.password && <span className="error-text">{errores.password}</span>}
+            </div>
+          )}
 
-              <div className="form-group">
-                <label>Número de documento</label>
+          {/* 2. BLOQUE DE DOCUMENTO (Libre, decide por sí mismo) */}
+          <div className="form-group">
+            <label>Número de documento</label>
+            {mode === "create" ? (
+              <>
                 <input
                   name="numeroDocumento"
                   value={form.numeroDocumento}
@@ -257,10 +271,19 @@ function UsuarioFormModal({
                   className={errores.numeroDocumento ? "input-error" : ""}
                 />
                 {errores.numeroDocumento && <span className="error-text">{errores.numeroDocumento}</span>}
+              </>
+            ) : (
+              <div style={{ padding: "8px 12px", backgroundColor: "#e9ecef", border: "1px solid #ced4da", borderRadius: "4px", color: "#6c757d", cursor: "not-allowed", fontWeight: "500" }}>
+                {form.numeroDocumento || "No registrado"}
               </div>
+            )}
+          </div>
 
-              <div className="form-group">
-                <label>Código estudiante</label>
+          {/* 3. BLOQUE DE CÓDIGO (Libre, decide por sí mismo) */}
+          <div className="form-group">
+            <label>Código estudiante</label>
+            {mode === "create" ? (
+              <>
                 <input
                   name="codigoEstudiante"
                   value={form.codigoEstudiante}
@@ -269,9 +292,13 @@ function UsuarioFormModal({
                   placeholder="u202212345"
                 />
                 {errores.codigoEstudiante && <span className="error-text">{errores.codigoEstudiante}</span>}
+              </>
+            ) : (
+              <div style={{ padding: "8px 12px", backgroundColor: "#e9ecef", border: "1px solid #ced4da", borderRadius: "4px", color: "#6c757d", cursor: "not-allowed", fontWeight: "500" }}>
+                {form.codigoEstudiante || "No registrado"}
               </div>
-            </>
-          ) : null}
+            )}
+          </div>
 
           <div className="form-group">
             <label>Sede</label>

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import PageHeader from "../../components/PageHeader";
+import { getProyectos } from "../../api/proyectos";
 import EvaluacionFormModal from "../../components/evaluaciones/EvaluacionFormModal";
 import {
   createEvaluacion,
@@ -19,6 +20,8 @@ function EvaluacionesPage() {
     totalElementos: 0,
   });
   const [modalOpen, setModalOpen] = useState(false);
+
+  const [proyectosList, setProyectosList] = useState([]);
 
   const cargarEvaluaciones = async () => {
     try {
@@ -43,8 +46,23 @@ function EvaluacionesPage() {
     }
   };
 
+  
+
   useEffect(() => {
     cargarEvaluaciones();
+    
+    // 👇 NUEVO: Cargamos los proyectos para el formulario
+    const cargarDatosFormulario = async () => {
+      try {
+        // Pedimos 100 para asegurarnos de que salgan en el select (luego lo optimizaremos)
+        const resProyectos = await getProyectos({ page: 0, size: 100 }); 
+        setProyectosList(resProyectos.data || []);
+      } catch (err) {
+        console.error("Error al cargar proyectos para el modal", err);
+      }
+    };
+    
+    cargarDatosFormulario();
   }, [page]);
 
   const handleCreate = async (payload) => {
@@ -173,6 +191,7 @@ function EvaluacionesPage() {
         onClose={() => setModalOpen(false)}
         onSubmit={handleCreate}
         loading={saving}
+        proyectos={proyectosList}  
       />
     </div>
   );

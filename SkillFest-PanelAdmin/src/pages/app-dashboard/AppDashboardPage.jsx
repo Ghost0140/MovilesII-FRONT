@@ -115,7 +115,9 @@ function AppDashboardPage() {
                 </thead>
                 <tbody>
                   {dashboard.eventosActivos?.length > 0 ? (
-                    dashboard.eventosActivos.map((evento) => (
+                    dashboard.eventosActivos
+                      .filter((evento) => evento.estado === "PUBLICADO" || evento.estado === "ACTIVO")
+                      .map((evento) => (
                       <tr key={evento.id}>
                         <td>{evento.id}</td>
                         <td>{evento.nombre}</td>

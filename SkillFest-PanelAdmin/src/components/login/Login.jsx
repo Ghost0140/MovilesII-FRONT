@@ -29,6 +29,11 @@ const Login = () => {
         localStorage.setItem("userRol", data.rol);
         localStorage.setItem("userEmail", data.email);
 
+        // 👇 NUEVA LÍNEA: Guardamos el nombre (Ajusta 'data.nombres' según lo que envíe tu API)
+        const nombreCompleto = data.nombres ? `${data.nombres} ${data.apellidos}` : data.email;
+
+        localStorage.setItem("userName", nombreCompleto);
+
         const idParaGuardar = data.id || data.usuarioId;
 
         if (idParaGuardar) {
