@@ -70,17 +70,26 @@ function ProyectosPage() {
     );
   };
 
+  const getBackendMessage = (err) =>
+    err?.response?.data?.detalle ||
+    err?.response?.data?.message ||
+    err?.response?.data?.mensaje ||
+    err?.message ||
+    "Ocurrió un error inesperado en el servidor.";
+
   const ejecutarAccion = async (proyectoId, accion, successMessage) => {
     try {
       setActionLoadingId(proyectoId);
       setFeedback({ type: "", message: "" });
 
-      await accion();
+      const result = await accion();
       await cargarProyectos();
 
       setFeedback({
-        type: "success",
-        message: successMessage,
+        type: result?.radarAdvertencia ? "warning" : "success",
+        message: result?.radarAdvertencia
+          ? `${successMessage} Advertencia Radar: ${result.radarAdvertencia}`
+          : successMessage,
       });
 
       setTimeout(() => setFeedback({ type: "", message: "" }), 4000);
@@ -89,21 +98,11 @@ function ProyectosPage() {
 
       console.error("Error crudo desde el backend:", err);
 
-      const status = err?.response?.status;
-      
-      const textoError = String(
-        err?.response?.data?.detalle || 
-        err?.response?.data?.message || 
-        err?.message || 
-        ""
-      ).toLowerCase();
+      const textoError = String(getBackendMessage(err)).toLowerCase();
+      let mensajeFinal = getBackendMessage(err);
 
-      let mensajeFinal = "No se pudo ejecutar la acción";
-
-      if (status === 400 || status === 404 || textoError.includes("github")) {
+      if (textoError.includes("github") || textoError.includes("repositorio")) {
         mensajeFinal = "Error: El repositorio de GitHub no es válido, no existe o es Privado. Verifica el enlace.";
-      } else {
-        mensajeFinal = err?.response?.data?.detalle || "Ocurrió un error inesperado en el servidor.";
       }
 
       setFeedback({
@@ -210,7 +209,11 @@ function ProyectosPage() {
       {feedback.message ? (
         <div
           className={`card mb-16 ${
-            feedback.type === "success" ? "feedback-success" : "feedback-error"
+            feedback.type === "success"
+              ? "feedback-success"
+              : feedback.type === "warning"
+              ? "feedback-warning"
+              : "feedback-error"
           }`}
         >
           {feedback.message}
