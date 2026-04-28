@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState, useCallback } from "react";
 import PageHeader from "../../components/PageHeader";
+import UiIcon from "../../components/UiIcon";
 import { aprobarEquipo, cambiarEstadoEquipo, getEquipos } from "../../api/equipos";
 
-const estadosEquipo = ["PENDIENTE", "RECHAZADO", "INACTIVO", "ELIMINADO"];
+const estadosEquipo = ["PENDIENTE", "APROBADO", "RECHAZADO"];
 
 function EquiposPage() {
   const [equipos, setEquipos] = useState([]);
@@ -43,12 +44,6 @@ function EquiposPage() {
   }, [equipos, estadoFiltro]);
 
   const handleCambiarEstado = async (equipoId, estado) => {
-    if (estado === "ELIMINADO") {
-      const confirmar = window.confirm(
-        "¿Estás seguro de eliminar este equipo? Este cambio hará que el equipo desaparezca de la lista."
-      );
-      if (!confirmar) return; 
-    }
     try {
       await cambiarEstadoEquipo(equipoId, estado);
       await cargarEquipos();
@@ -139,10 +134,11 @@ function EquiposPage() {
                       </td>
                       <td>
                         <button
-                          className="btn-primary"
+                          className="btn-primary action-btn"
                           onClick={() => handleAprobar(equipo.id)}
                           disabled={equipo.estado === "APROBADO"}
                         >
+                          <UiIcon name="check" className="button-svg" />
                           Aprobar
                         </button>
                       </td>

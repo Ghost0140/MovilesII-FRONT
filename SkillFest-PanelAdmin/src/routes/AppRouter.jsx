@@ -6,14 +6,11 @@ import DashboardPage from "../pages/dashboard/DashboardPage";
 import UsuariosPage from "../pages/usuarios/UsuariosPage";
 import EventosPage from "../pages/eventos/EventosPage";
 import EquiposPage from "../pages/equipos/EquiposPage";
-import EvaluacionesPage from "../pages/evaluaciones/EvaluacionesPage";
 import ProyectosPage from "../pages/proyectos/ProyectosPage";
-import PortafolioPage from "../pages/portafolio/PortafolioPage";
 import ContribucionesPage from "../pages/contribuciones/ContribucionesPage";
 import RepositoriosPage from "../pages/repositorios/RepositoriosPage";
 import RankingAreaPage from "../pages/ranking-area/RankingAreaPage";
 import RankingSedePage from "../pages/ranking-sede/RankingSedePage";
-import ResultadosPage from "../pages/resultados/ResultadosPage";
 import ProtectedRoute from "../components/ProtectedRoute";
 import RoleRedirect from "../components/RoleRedirect";
 
@@ -45,8 +42,6 @@ function AppRouter() {
           <Route path="inscribir" element={<InscribirPage />} />
           </Route>
 
-          <Route path="portafolio" element={<PortafolioPage />} />
-
             <Route element={<ProtectedRoute rolesPermitidos={["ADMIN", "ORGANIZADOR"]} />}>
               <Route path="usuarios" element={<UsuariosPage />} />
               <Route path="eventos" element={<EventosPage />} />
@@ -75,10 +70,6 @@ function AppRouter() {
               <Route path="reclutador" element={<ReclutadorPage />} />
             </Route>
 
-            <Route element={<ProtectedRoute rolesPermitidos={["ADMIN", "JURADO"]} />}>
-              <Route path="evaluaciones" element={<EvaluacionesPage />} />
-              <Route path="resultados" element={<ResultadosPage />} />
-            </Route>
           </Route>
         </Route>
 

@@ -76,6 +76,28 @@ textarea {
   border-right: 1px solid var(--border);
 }
 
+.brand-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brand-mark {
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 40px;
+  box-shadow: 0 10px 22px rgba(225, 29, 72, 0.22);
+}
+
+.brand-mark svg {
+  width: 40px;
+  height: 40px;
+  display: block;
+}
+
 .sidebar-brand h2 {
   margin: 0;
   font-size: 24px;
@@ -98,12 +120,38 @@ textarea {
 }
 
 .sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   padding: 12px 14px;
   border-radius: 13px;
   color: #cbd5e1;
   transition: 0.2s ease;
   font-weight: 600;
   font-size: 15px;
+}
+
+.sidebar-icon {
+  width: 26px;
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 26px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.07);
+  color: #f8fafc;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.sidebar-link.active .sidebar-icon {
+  background: rgba(255, 255, 255, 0.16);
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+.sidebar-svg {
+  width: 15px;
+  height: 15px;
 }
 
 .sidebar-link:hover {
@@ -483,6 +531,36 @@ textarea {
   background: rgba(255, 255, 255, 0.13);
 }
 
+.btn-ghost {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 9px 13px;
+  cursor: pointer;
+  font-weight: 700;
+  transition: 0.2s ease;
+  background: rgba(245, 158, 11, 0.1);
+  color: #fcd34d;
+}
+
+.btn-ghost:hover {
+  background: rgba(245, 158, 11, 0.16);
+}
+
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 36px;
+  white-space: nowrap;
+}
+
+.button-svg {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+}
+
 /* =========================
    BADGES
 ========================= */
@@ -508,6 +586,29 @@ textarea {
 .badge.neutral {
   background: rgba(255, 255, 255, 0.08);
   color: #d1d5db;
+}
+
+.badge.warning {
+  background: rgba(245, 158, 11, 0.14);
+  color: #fcd34d;
+}
+
+.row-muted td {
+  color: #94a3b8;
+  opacity: 0.78;
+}
+
+.rank-position {
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: rgba(225, 29, 72, 0.14);
+  color: #fecdd3;
+  font-weight: 900;
+  border: 1px solid rgba(225, 29, 72, 0.22);
 }
 
 /* =========================

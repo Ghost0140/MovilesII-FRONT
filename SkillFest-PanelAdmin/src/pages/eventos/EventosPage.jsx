@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import PageHeader from "../../components/PageHeader";
 import EventoFormModal from "../../components/eventos/EventoFormModal";
+import UiIcon from "../../components/UiIcon";
 import { getSedes } from "../../api/sedes";
 import {
   cambiarEstadoEvento,
@@ -14,9 +15,9 @@ const estadosDisponibles = [
   "PUBLICADO",
   "EN_CURSO",
   "FINALIZADO",
-  "CANCELADO",
-  "ELIMINADO",
 ];
+
+const estadosCambio = ["PUBLICADO", "EN_CURSO", "FINALIZADO"];
 
 function EventosPage() {
   const [eventos, setEventos] = useState([]);
@@ -113,12 +114,6 @@ function EventosPage() {
   };
 
   const handleCambiarEstado = async (id, estado) => {
-    if (estado === "ELIMINADO" || estado === "CANCELADO") {
-      const confirmar = window.confirm(
-        `⚠️ ¿Estás totalmente seguro de marcar este evento como ${estado}? Esta acción afectará a todos los equipos y proyectos inscritos.`
-      );
-      if (!confirmar) return; // Si cancela, no hacemos nada
-    }
     try {
       await cambiarEstadoEvento(id, estado);
       await cargarEventos();
@@ -156,7 +151,8 @@ function EventosPage() {
           </div>
 
           <div className="toolbar-actions">
-            <button className="btn-primary" onClick={abrirCrear}>
+            <button className="btn-primary action-btn" onClick={abrirCrear}>
+              <UiIcon name="plus" className="button-svg" />
               Nuevo evento
             </button>
           </div>
@@ -199,9 +195,10 @@ function EventosPage() {
                       </td>
                       <td>
                         <button
-                          className="btn-secondary"
+                          className="btn-secondary action-btn"
                           onClick={() => abrirEditar(evento)}
                         >
+                          <UiIcon name="edit" className="button-svg" />
                           Editar
                         </button>
                       </td>
@@ -213,7 +210,12 @@ function EventosPage() {
                             handleCambiarEstado(evento.id, e.target.value)
                           }
                         >
-                          {estadosDisponibles.map((estado) => (
+                          {!estadosCambio.includes(evento.estado) && (
+                            <option value={evento.estado} disabled>
+                              {evento.estado}
+                            </option>
+                          )}
+                          {estadosCambio.map((estado) => (
                             <option key={estado} value={estado}>
                               {estado}
                             </option>

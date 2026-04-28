@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import PageHeader from "../../components/PageHeader";
+import UiIcon from "../../components/UiIcon";
 import { getRankingSede } from "../../api/rankingSede";
 import { getEventos } from "../../api/eventos";
 
@@ -10,9 +11,9 @@ function RankingSedePage() {
   const [error, setError] = useState("");
   const [eventosLista, setEventosLista] = useState([]);
 
-  const cargarRanking = async () => {
+  const cargarRanking = useCallback(async () => {
     if (!eventoId) {
-      setError("Por favor, selecciona un evento antes de consultar.");
+      setRanking([]);
       return;
     }
 
@@ -20,63 +21,67 @@ function RankingSedePage() {
       setLoading(true);
       setError("");
       const response = await getRankingSede(eventoId);
-      setRanking(response.data || []);
+      const data = response.data || [];
+      setRanking(data);
     } catch (err) {
+      setRanking([]);
       setError(
         err?.response?.data?.detalle ||
+          err?.response?.data?.message ||
           err?.message ||
           "No se pudo cargar ranking de sedes"
       );
     } finally {
       setLoading(false);
     }
-  };
+  }, [eventoId]);
 
   useEffect(() => {
     const cargarListaEventos = async () => {
       try {
         const response = await getEventos();
-        setEventosLista(response.data || response || []);
+        const data = response.data || response || [];
+        setEventosLista(data);
+        if (data.length > 0) {
+          setEventoId((actual) => actual || String(data[0].id));
+        }
       } catch (err) {
         console.error("No se pudo cargar la lista de eventos", err);
+        setEventosLista([]);
       }
     };
 
     cargarListaEventos();
   }, []);
 
+  useEffect(() => {
+    cargarRanking();
+  }, [cargarRanking]);
+
   return (
     <div>
       <PageHeader
         title="Ranking por Sede"
-        description="Vista analítica por sedes."
+        description="Vista analitica con desempeno por campus."
       />
 
       <div className="card mb-16">
         <div className="toolbar">
           <div className="toolbar-group">
             <label>Evento</label>
-            <select
-              value={eventoId}
-              onChange={(e) => setEventoId(e.target.value)}
-            >
-              <option value="">-- Seleccione un evento --</option>
-              {eventosLista.length > 0 ? (
-                eventosLista.map((evento) => (
-                  <option key={evento.id} value={evento.id}>
-                    {evento.nombre}
-                  </option>
-                ))
-              ) : (
-                <option value="" disabled>
-                  Cargando eventos...
+            <select value={eventoId} onChange={(e) => setEventoId(e.target.value)}>
+              <option value="">Seleccione un evento</option>
+              {eventosLista.map((evento) => (
+                <option key={evento.id} value={evento.id}>
+                  {evento.nombre}
                 </option>
-              )}
+              ))}
             </select>
           </div>
 
           <div className="toolbar-actions">
-            <button className="btn-primary" onClick={cargarRanking}>
+            <button className="btn-primary action-btn" onClick={cargarRanking}>
+              <UiIcon name="map" className="button-svg" />
               Consultar
             </button>
           </div>
@@ -93,7 +98,7 @@ function RankingSedePage() {
             <table className="admin-table">
               <thead>
                 <tr>
-                  <th>Posición</th>
+                  <th>Posicion</th>
                   <th>Sede</th>
                   <th>Puntos</th>
                   <th>Proyectos</th>
@@ -103,7 +108,9 @@ function RankingSedePage() {
                 {ranking.length > 0 ? (
                   ranking.map((item, index) => (
                     <tr key={item.id || index}>
-                      <td>{item.posicion ?? index + 1}</td>
+                      <td>
+                        <span className="rank-position">{item.posicion ?? index + 1}</span>
+                      </td>
                       <td>{item.sedeNombre || "-"}</td>
                       <td>{item.puntosTotales ?? "-"}</td>
                       <td>{item.proyectosPresentados ?? "-"}</td>
@@ -111,7 +118,7 @@ function RankingSedePage() {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="4">No hay datos de ranking.</td>
+                    <td colSpan="4">No hay ranking de sedes generado para este evento.</td>
                   </tr>
                 )}
               </tbody>

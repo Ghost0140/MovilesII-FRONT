@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import PageHeader from "../../components/PageHeader";
+import UiIcon from "../../components/UiIcon";
 import { getRankingArea } from "../../api/rankingArea";
 import { getEventos } from "../../api/eventos";
 
@@ -13,74 +14,80 @@ function RankingAreaPage() {
   const [error, setError] = useState("");
   const [eventosLista, setEventosLista] = useState([]);
 
-  const cargarRanking = async () => {
-
+  const cargarRanking = useCallback(async () => {
     if (!eventoId) {
-      setError("Por favor, selecciona un evento antes de consultar.");
+      setRanking([]);
       return;
     }
+
     try {
       setLoading(true);
       setError("");
       const response = await getRankingArea(eventoId, area);
-      setRanking(response.data || response || []);
+      const data = response.data || response || [];
+      setRanking(data);
     } catch (err) {
+      setRanking([]);
       setError(
         err?.response?.data?.detalle ||
+          err?.response?.data?.message ||
           err?.message ||
-          "No se pudo cargar ranking por área"
+          "No se pudo cargar ranking por area"
       );
     } finally {
       setLoading(false);
     }
-  };
+  }, [area, eventoId]);
 
   useEffect(() => {
     const cargarListaEventos = async () => {
       try {
         const response = await getEventos();
-        setEventosLista(response.data || response || []);
+        const data = response.data || response || [];
+        setEventosLista(data);
+        if (data.length > 0) {
+          setEventoId((actual) => actual || String(data[0].id));
+        }
       } catch (err) {
         console.error("No se pudo cargar la lista de eventos", err);
+        setEventosLista([]);
       }
     };
 
     cargarListaEventos();
   }, []);
 
-  
+  useEffect(() => {
+    cargarRanking();
+  }, [cargarRanking]);
 
   return (
     <div>
       <PageHeader
-        title="Ranking por Área"
-        description="Vista analítica con tabla del ranking."
+        title="Ranking por Area"
+        description="Vista analitica con ranking de talento por especialidad."
       />
 
       <div className="card mb-16">
         <div className="toolbar">
           <div className="toolbar-group">
             <label>Evento</label>
-            <select
-              value={eventoId}
-              onChange={(e) => setEventoId(e.target.value)}
-            ><option value="">-- Seleccione un evento --</option>
-              {eventosLista.length > 0 ? (
-                eventosLista.map((evento) => (
-                  <option key={evento.id} value={evento.id}>
-                    {evento.nombre}
-                  </option>
-                ))
-              ) : (
-                <option value="" disabled>
-                  Cargando eventos...
+            <select value={eventoId} onChange={(e) => setEventoId(e.target.value)}>
+              <option value="">Seleccione un evento</option>
+              {eventosLista.map((evento) => (
+                <option key={evento.id} value={evento.id}>
+                  {evento.nombre}
                 </option>
-              )}</select>
+              ))}
+            </select>
           </div>
 
           <div className="toolbar-group">
-            <label>Área</label>
-            <select value={area} onChange={(e) => setArea(e.target.value)}>
+            <label>Area</label>
+            <select
+              value={area}
+              onChange={(e) => setArea(e.target.value)}
+            >
               {areas.map((item) => (
                 <option key={item} value={item}>
                   {item}
@@ -90,7 +97,8 @@ function RankingAreaPage() {
           </div>
 
           <div className="toolbar-actions">
-            <button className="btn-primary" onClick={cargarRanking}>
+            <button className="btn-primary action-btn" onClick={cargarRanking}>
+              <UiIcon name="trophy" className="button-svg" />
               Consultar
             </button>
           </div>
@@ -107,9 +115,9 @@ function RankingAreaPage() {
             <table className="admin-table">
               <thead>
                 <tr>
-                  <th>Posición</th>
+                  <th>Posicion</th>
                   <th>Usuario</th>
-                  <th>Área</th>
+                  <th>Area</th>
                   <th>Score</th>
                 </tr>
               </thead>
@@ -117,15 +125,21 @@ function RankingAreaPage() {
                 {ranking.length > 0 ? (
                   ranking.map((item, index) => (
                     <tr key={item.id || index}>
-                      <td>{item.posicion ?? index + 1}</td>
-                      <td>{item.usuarioNombre || "-"}</td>
+                      <td>
+                        <span className="rank-position">{item.posicion ?? index + 1}</span>
+                      </td>
+                      <td>
+                        {item.usuarioNombre ||
+                          [item.nombres, item.apellidos].filter(Boolean).join(" ") ||
+                          "-"}
+                      </td>
                       <td>{item.area || area}</td>
                       <td>{item.score ?? "-"}</td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="4">No hay datos para esta área.</td>
+                    <td colSpan="4">No hay ranking generado para este evento y area.</td>
                   </tr>
                 )}
               </tbody>

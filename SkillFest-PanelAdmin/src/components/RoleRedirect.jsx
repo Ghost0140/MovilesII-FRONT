@@ -20,7 +20,7 @@ function RoleRedirect() {
   }
 
   if (userRol.includes("JURADO")) {
-    return <Navigate to="/evaluaciones" replace />;
+    return <Navigate to="/dashboard" replace />;
   }
 
   return <Navigate to="/dashboard" replace />;

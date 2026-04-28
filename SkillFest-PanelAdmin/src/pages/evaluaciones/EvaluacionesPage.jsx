@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import PageHeader from "../../components/PageHeader";
+import UiIcon from "../../components/UiIcon";
 import { getProyectos } from "../../api/proyectos";
 import EvaluacionFormModal from "../../components/evaluaciones/EvaluacionFormModal";
 import {
   createEvaluacion,
-  deleteEvaluacion,
   getEvaluaciones,
 } from "../../api/evaluaciones";
 
@@ -20,10 +20,11 @@ function EvaluacionesPage() {
     totalElementos: 0,
   });
   const [modalOpen, setModalOpen] = useState(false);
+  const [ocultas, setOcultas] = useState(() => new Set());
 
   const [proyectosList, setProyectosList] = useState([]);
 
-  const cargarEvaluaciones = async () => {
+  const cargarEvaluaciones = useCallback(async () => {
     try {
       setLoading(true);
       setError("");
@@ -44,26 +45,22 @@ function EvaluacionesPage() {
     } finally {
       setLoading(false);
     }
-  };
-
-  
+  }, [page]);
 
   useEffect(() => {
     cargarEvaluaciones();
-    
-    // 👇 NUEVO: Cargamos los proyectos para el formulario
+
     const cargarDatosFormulario = async () => {
       try {
-        // Pedimos 100 para asegurarnos de que salgan en el select (luego lo optimizaremos)
-        const resProyectos = await getProyectos({ page: 0, size: 100 }); 
+        const resProyectos = await getProyectos({ page: 0, size: 100 });
         setProyectosList(resProyectos.data || []);
       } catch (err) {
         console.error("Error al cargar proyectos para el modal", err);
       }
     };
-    
+
     cargarDatosFormulario();
-  }, [page]);
+  }, [cargarEvaluaciones]);
 
   const handleCreate = async (payload) => {
     try {
@@ -75,24 +72,23 @@ function EvaluacionesPage() {
       alert(
         err?.response?.data?.detalle ||
           err?.message ||
-          "No se pudo crear la evaluación"
+          "No se pudo crear la evaluacion"
       );
     } finally {
       setSaving(false);
     }
   };
 
-  const handleDelete = async (id) => {
-    try {
-      await deleteEvaluacion(id);
-      await cargarEvaluaciones();
-    } catch (err) {
-      alert(
-        err?.response?.data?.detalle ||
-          err?.message ||
-          "No se pudo eliminar la evaluación"
-      );
-    }
+  const toggleOculta = (id) => {
+    setOcultas((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
   };
 
   return (
@@ -105,8 +101,9 @@ function EvaluacionesPage() {
       <div className="card mb-16">
         <div className="toolbar">
           <div className="toolbar-actions">
-            <button className="btn-primary" onClick={() => setModalOpen(true)}>
-              Nueva evaluación
+            <button className="btn-primary action-btn" onClick={() => setModalOpen(true)}>
+              <UiIcon name="plus" className="button-svg" />
+              Nueva evaluacion
             </button>
           </div>
         </div>
@@ -130,33 +127,44 @@ function EvaluacionesPage() {
                     <th>Puntaje</th>
                     <th>Comentario</th>
                     <th>Fecha</th>
-                    <th>Eliminar</th>
+                    <th>Estado</th>
+                    <th>Accion</th>
                   </tr>
                 </thead>
                 <tbody>
                   {evaluaciones.length > 0 ? (
-                    evaluaciones.map((evaluacion) => (
-                      <tr key={evaluacion.id}>
-                        <td>{evaluacion.id}</td>
-                        <td>{evaluacion.proyectoTitulo || evaluacion.proyectoId}</td>
-                        <td>{evaluacion.juradoNombre || evaluacion.juradoId}</td>
-                        <td>{evaluacion.criterioNombre || evaluacion.criterioId}</td>
-                        <td>{evaluacion.puntaje}</td>
-                        <td>{evaluacion.comentario || "-"}</td>
-                        <td>{evaluacion.evaluadoEn || "-"}</td>
-                        <td>
-                          <button
-                            className="btn-danger"
-                            onClick={() => handleDelete(evaluacion.id)}
-                          >
-                            Eliminar
-                          </button>
-                        </td>
-                      </tr>
-                    ))
+                    evaluaciones.map((evaluacion) => {
+                      const estaOculta = ocultas.has(evaluacion.id);
+
+                      return (
+                        <tr key={evaluacion.id} className={estaOculta ? "row-muted" : ""}>
+                          <td>{evaluacion.id}</td>
+                          <td>{evaluacion.proyectoTitulo || evaluacion.proyectoId}</td>
+                          <td>{evaluacion.juradoNombre || evaluacion.juradoId}</td>
+                          <td>{evaluacion.criterioNombre || evaluacion.criterioId}</td>
+                          <td>{evaluacion.puntaje}</td>
+                          <td>{evaluacion.comentario || "-"}</td>
+                          <td>{evaluacion.evaluadoEn || "-"}</td>
+                          <td>
+                            <span className={`badge ${estaOculta ? "warning" : "success"}`}>
+                              {estaOculta ? "Oculto" : "Activo"}
+                            </span>
+                          </td>
+                          <td>
+                            <button
+                              className={estaOculta ? "btn-secondary action-btn" : "btn-ghost action-btn"}
+                              onClick={() => toggleOculta(evaluacion.id)}
+                            >
+                              <UiIcon name={estaOculta ? "show" : "hide"} className="button-svg" />
+                              {estaOculta ? "Activar" : "Ocultar"}
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })
                   ) : (
                     <tr>
-                      <td colSpan="8">No hay evaluaciones disponibles.</td>
+                      <td colSpan="9">No hay evaluaciones disponibles.</td>
                     </tr>
                   )}
                 </tbody>
@@ -172,7 +180,7 @@ function EvaluacionesPage() {
               </button>
 
               <span>
-                Página {meta.paginaActual + 1} de {Math.max(meta.totalPaginas, 1)}
+                Pagina {meta.paginaActual + 1} de {Math.max(meta.totalPaginas, 1)}
               </span>
 
               <button
@@ -191,7 +199,7 @@ function EvaluacionesPage() {
         onClose={() => setModalOpen(false)}
         onSubmit={handleCreate}
         loading={saving}
-        proyectos={proyectosList}  
+        proyectos={proyectosList}
       />
     </div>
   );
