@@ -53,10 +53,6 @@ textarea {
   font-family: inherit;
 }
 
-/* =========================
-   LAYOUT
-========================= */
-
 .admin-shell {
   display: flex;
   min-height: 100vh;
@@ -177,10 +173,6 @@ textarea {
   flex: 1;
 }
 
-/* =========================
-   TOPBAR
-========================= */
-
 .topbar {
   background: rgba(17, 24, 39, 0.82) !important;
   border-bottom: 1px solid var(--border) !important;
@@ -218,10 +210,6 @@ textarea {
   box-shadow: 0 10px 22px rgba(225, 29, 72, 0.2);
 }
 
-/* =========================
-   PAGE HEADER
-========================= */
-
 .page-header {
   margin-bottom: 22px;
 }
@@ -237,10 +225,6 @@ textarea {
   margin: 0;
   color: var(--text-muted);
 }
-
-/* =========================
-   CARDS
-========================= */
 
 .card {
   background: linear-gradient(180deg, #111827 0%, #0f172a 100%);
@@ -268,10 +252,6 @@ textarea {
   color: var(--text-muted);
   font-size: 14px;
 }
-
-/* =========================
-   DASHBOARD
-========================= */
 
 .stats-grid {
   display: grid;
@@ -308,10 +288,6 @@ textarea {
   grid-template-columns: 1fr 1fr;
   gap: 22px;
 }
-
-/* =========================
-   TOOLBAR / FILTROS
-========================= */
 
 .toolbar {
   display: flex;
@@ -351,10 +327,6 @@ textarea {
   gap: 8px;
   flex-wrap: wrap;
 }
-
-/* =========================
-   TABLES
-========================= */
 
 .table-wrapper {
   overflow-x: auto;
@@ -428,10 +400,6 @@ textarea {
   white-space: nowrap;
 }
 
-/* =========================
-   FORMS
-========================= */
-
 input,
 select,
 textarea,
@@ -490,10 +458,6 @@ textarea {
 .full-width {
   grid-column: 1 / -1;
 }
-
-/* =========================
-   BUTTONS
-========================= */
 
 .btn-primary,
 .btn-danger,
@@ -561,10 +525,6 @@ textarea {
   flex: 0 0 16px;
 }
 
-/* =========================
-   BADGES
-========================= */
-
 .badge {
   display: inline-block;
   padding: 6px 10px;
@@ -611,10 +571,6 @@ textarea {
   border: 1px solid rgba(225, 29, 72, 0.22);
 }
 
-/* =========================
-   PAGINATION
-========================= */
-
 .pagination {
   margin-top: 16px;
   display: flex;
@@ -637,10 +593,6 @@ textarea {
   opacity: 0.5;
   cursor: not-allowed;
 }
-
-/* =========================
-   MODALS
-========================= */
 
 .modal-backdrop {
   position: fixed;
@@ -695,10 +647,6 @@ textarea {
   margin-top: 10px;
 }
 
-/* =========================
-   FEEDBACK
-========================= */
-
 .error-text {
   color: #fca5a5;
 }
@@ -730,10 +678,6 @@ textarea {
   background: rgba(239, 68, 68, 0.12);
   border-color: rgba(239, 68, 68, 0.35);
 }
-
-/* =========================
-   RESPONSIVE
-========================= */
 
 @media (max-width: 992px) {
   .stats-grid,

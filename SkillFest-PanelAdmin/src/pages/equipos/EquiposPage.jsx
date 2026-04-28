@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, useCallback } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import PageHeader from "../../components/PageHeader";
 import UiIcon from "../../components/UiIcon";
 import { aprobarEquipo, cambiarEstadoEquipo, getEquipos } from "../../api/equipos";
@@ -11,32 +11,26 @@ function EquiposPage() {
   const [error, setError] = useState("");
   const [estadoFiltro, setEstadoFiltro] = useState("");
 
-  // 1. Agrega useCallback a tu import de react
-// ... dentro de tu componente EquiposPage ...
-
   const cargarEquipos = useCallback(async () => {
     try {
       setLoading(true);
       setError("");
       const response = await getEquipos();
-      
-      // ✅ CORRECCIÓN: Usa setEquipos, no setUsuarios
-      setEquipos(response.data || []); 
-      
+      setEquipos(response.data || []);
     } catch (err) {
       setError(
         err?.response?.data?.detalle ||
-        err?.message ||
-        "No se pudo cargar equipos"
+          err?.message ||
+          "No se pudo cargar equipos"
       );
     } finally {
       setLoading(false);
     }
-  }, []); // Dependencias vacías para que la función se memorice correctamente
+  }, []);
 
   useEffect(() => {
     cargarEquipos();
-  }, [cargarEquipos]); // ✅ Ahora cargarEquipos es una dependencia válida y segura
+  }, [cargarEquipos]);
 
   const equiposFiltrados = useMemo(() => {
     if (!estadoFiltro) return equipos;
@@ -58,18 +52,15 @@ function EquiposPage() {
 
   const handleAprobar = async (equipoId) => {
     try {
-      // 🛡️ SEGURIDAD: Sacamos el ID real del administrador logueado
       const adminId = localStorage.getItem("usuarioId");
-      
+
       if (!adminId) {
-        alert("Error: No se detectó tu sesión de administrador. Reintenta el login.");
+        alert("Error: No se detecto tu sesion de administrador. Reintenta el login.");
         return;
       }
 
-      // Enviamos el ID real al backend
       await aprobarEquipo(equipoId, Number(adminId));
       await cargarEquipos();
-      
     } catch (err) {
       alert(err?.response?.data?.detalle || err?.message || "No se pudo aprobar el equipo");
     }
@@ -79,7 +70,7 @@ function EquiposPage() {
     <div>
       <PageHeader
         title="Equipos"
-        description="Revisión y control de equipos."
+        description="Revision y control de equipos."
       />
 
       <div className="card mb-16">
@@ -112,7 +103,7 @@ function EquiposPage() {
                   <th>Nombre</th>
                   <th>Evento</th>
                   <th>Sede</th>
-                  <th>Líder</th>
+                  <th>Lider</th>
                   <th>Asesor</th>
                   <th>Estado</th>
                   <th>Aprobar</th>
